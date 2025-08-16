@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ASP.NET.Core.Identity.Models.Entities;
 using ASP.NET.Core.Identity.Models.EntityConfigurations;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ASP.NET.Core.Identity.Models.Contexts
 {
-    public class SisMedContext : DbContext
+    public class SisMedContext : IdentityDbContext
     {
         private readonly IConfiguration _configuration;
 
@@ -26,6 +27,7 @@ namespace ASP.NET.Core.Identity.Models.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new PacienteConfiguration());
             modelBuilder.ApplyConfiguration(new MedicoConfiguration());
             modelBuilder.ApplyConfiguration(new ConsultaConfiguration());
