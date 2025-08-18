@@ -22,7 +22,7 @@ public class AuthController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel dados)
+    public async Task<IActionResult> Login(LoginViewModel dados, string? returnUrl)
     {
         if (!ModelState.IsValid) return View(dados);
         var result = await _signManager.PasswordSignInAsync(dados.Username, dados.Senha, false, false);
@@ -31,6 +31,18 @@ public class AuthController : Controller
             ModelState.AddModelError(string.Empty, "Usuário ou senha inválidod");
             return View(dados);
         }
+
+        if (returnUrl is not null)
+        {
+            return LocalRedirect(returnUrl);
+        }
+
         return RedirectToAction("Index", "Home");
+    }
+
+    public async Task<IActionResult> Logout()
+    {
+        await _signManager.SignOutAsync();
+        return RedirectToAction(nameof(Login));
     }
 }

@@ -17,11 +17,21 @@ using ASP.NET.Core.Identity.Validators.Usuario;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = false);
 
 builder.Services.AddDbContext<SisMedContext>();
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<SisMedContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.Password.RequireUppercase = false; //desativa obrigatoriedade de caracter maiusculo na senha
+    options.Password.RequireNonAlphanumeric = false; //desativa obrigatoriedade de caracteres especiais na senha
+    options.Password.RequiredLength = 3; //indica a quantidade de caracteres minimos na senha
+    options.Password.RequireDigit = false; //desativa obrigatoriedade de caracteres numericos na senha
+    // options.Stores.ProtectPersonalData = true; //criptografa dados pesoais
+}).AddEntityFrameworkStores<SisMedContext>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Auth/Login";
+});
 
 builder.Services.AddScoped<IValidator<AdicionarMedicoViewModel>, AdicionarMedicoValidator>();
 builder.Services.AddScoped<IValidator<EditarMedicoViewModel>, EditarMedicoValidator>();
