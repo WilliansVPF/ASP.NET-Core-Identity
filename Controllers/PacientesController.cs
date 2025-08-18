@@ -5,9 +5,11 @@ using System.Text.RegularExpressions;
 using ASP.NET.Core.Identity.Models.Contexts;
 using ASP.NET.Core.Identity.Models.Entities;
 using ASP.NET.Core.Identity.ViewModels.Paciente;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.NET.Core.Identity.Controllers
 {
+    [Authorize]
     public class PacientesController : Controller
     {
         private readonly SisMedContext _context;
@@ -35,7 +37,7 @@ namespace ASP.NET.Core.Identity.Controllers
                                                   Nome = p.Nome,
                                                   CPF = p.CPF
                                               });
-                                              
+
 
             ViewBag.NumeroPagina = pagina;
             ViewBag.TotalPaginas = Math.Ceiling((decimal)pacientes.Count() / TAMANHO_PAGINA);
@@ -80,7 +82,7 @@ namespace ASP.NET.Core.Identity.Controllers
         public ActionResult Editar(int id)
         {
             var paciente = _context.Pacientes.Find(id);
-                                             
+
             if (paciente != null)
             {
                 var informacoesComplementares = _context.InformacoesComplementaresPaciente.FirstOrDefault(i => i.IdPaciente == id);
@@ -141,7 +143,7 @@ namespace ASP.NET.Core.Identity.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            
+
             return NotFound();
         }
 
@@ -160,7 +162,7 @@ namespace ASP.NET.Core.Identity.Controllers
                     DataNascimento = paciente.DataNascimento
                 });
             }
-            
+
             return NotFound();
         }
 
@@ -185,7 +187,7 @@ namespace ASP.NET.Core.Identity.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            
+
             return NotFound();
         }
 

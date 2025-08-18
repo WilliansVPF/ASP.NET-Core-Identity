@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using ASP.NET.Core.Identity.Models.Contexts;
 using ASP.NET.Core.Identity.Models.Entities;
 using ASP.NET.Core.Identity.ViewModels.Medico;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.NET.Core.Identity.Controllers
 {
+    [Authorize]
     public class MedicosController : Controller
     {
         private readonly SisMedContext _context;
@@ -90,7 +92,7 @@ namespace ASP.NET.Core.Identity.Controllers
                     Nome = medico.Nome
                 });
             }
-            
+
             return NotFound();
         }
 
@@ -106,10 +108,10 @@ namespace ASP.NET.Core.Identity.Controllers
                 validacao.AddToModelState(ModelState, "");
                 return View(dados);
             }
-            
+
             var medico = _context.Medicos.Find(id);
-                
-            if(medico != null)
+
+            if (medico != null)
             {
                 medico.CRM = Regex.Replace(dados.CRM, "[^0-9]", "");
                 medico.Nome = dados.Nome;
@@ -140,7 +142,7 @@ namespace ASP.NET.Core.Identity.Controllers
                     Nome = medico.Nome
                 });
             }
-            
+
             return NotFound();
         }
 
@@ -157,7 +159,7 @@ namespace ASP.NET.Core.Identity.Controllers
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
-            
+
             return NotFound();
         }
     }

@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using ASP.NET.Core.Identity.Models.Contexts;
 using ASP.NET.Core.Identity.Models.Entities;
 using ASP.NET.Core.Identity.ViewModels.MonitoramentoPaciente;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.NET.Core.Identity.Controllers
 {
+    [Authorize]
     [Route("Monitoramento")]
     public class MonitoramentoPacienteController : Controller
     {

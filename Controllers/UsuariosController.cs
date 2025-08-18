@@ -1,11 +1,13 @@
 using ASP.NET.Core.Identity.ViewModels.Usuario;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.NET.Core.Identity.Controllers;
 
+[Authorize]
 public class UsuariosController : Controller
 {
     private readonly ILogger<UsuariosController> _logger;
@@ -102,7 +104,7 @@ public class UsuariosController : Controller
             identityResult.Errors.ToList().ForEach(e => ModelState.AddModelError(string.Empty, e.Description));
             return View(dados);
         }
-        
+
         return RedirectToAction(nameof(Index));
     }
 

@@ -7,9 +7,11 @@ using ASP.NET.Core.Identity.Models.Contexts;
 using ASP.NET.Core.Identity.Models.Entities;
 using ASP.NET.Core.Identity.Models.Enums;
 using ASP.NET.Core.Identity.ViewModels.Consulta;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.NET.Core.Identity.Controllers
 {
+    [Authorize]
     public class ConsultasController : Controller
     {
         private readonly SisMedContext _context;
