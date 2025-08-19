@@ -30,7 +30,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 }).AddEntityFrameworkStores<SisMedContext>();
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Auth/Login";
+    options.LoginPath = "/Auth/Login"; //rota padrão de autenticação
+    options.AccessDeniedPath = "/Auth/Login"; //rota para quando não tem as credenciais necessarias
 });
 
 builder.Services.AddScoped<IValidator<AdicionarMedicoViewModel>, AdicionarMedicoValidator>();

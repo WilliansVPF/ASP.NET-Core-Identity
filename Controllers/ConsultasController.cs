@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.NET.Core.Identity.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin, User")]
     public class ConsultasController : Controller
     {
         private readonly SisMedContext _context;

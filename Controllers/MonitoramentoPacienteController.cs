@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.NET.Core.Identity.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin, User")]
     [Route("Monitoramento")]
     public class MonitoramentoPacienteController : Controller
     {

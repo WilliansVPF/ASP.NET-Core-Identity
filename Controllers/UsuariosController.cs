@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using ASP.NET.Core.Identity.ViewModels.Usuario;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -7,20 +8,22 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.NET.Core.Identity.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Admin")]
 public class UsuariosController : Controller
 {
     private readonly ILogger<UsuariosController> _logger;
     private readonly IValidator<AdicionarUsuarioViewModel> _adicionarUsuarioValidator;
     private readonly IValidator<EditarUsuarioViewModel> _editarUsuarioValidator;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManeger;
 
-    public UsuariosController(ILogger<UsuariosController> logger, IValidator<AdicionarUsuarioViewModel> adicionarUsuarioValidator, UserManager<IdentityUser> userManager, IValidator<EditarUsuarioViewModel> editarUsuarioValidator)
+    public UsuariosController(ILogger<UsuariosController> logger, IValidator<AdicionarUsuarioViewModel> adicionarUsuarioValidator, UserManager<IdentityUser> userManager, IValidator<EditarUsuarioViewModel> editarUsuarioValidator, RoleManager<IdentityRole> roleManeger)
     {
         _logger = logger;
         _adicionarUsuarioValidator = adicionarUsuarioValidator;
         _userManager = userManager;
         _editarUsuarioValidator = editarUsuarioValidator;
+        _roleManeger = roleManeger;
     }
 
     public IActionResult Index()
@@ -38,7 +41,7 @@ public class UsuariosController : Controller
 
     public IActionResult Adicionar()
     {
-        return View();
+        return View(new AdicionarUsuarioViewModel());
     }
 
     [HttpPost]
@@ -50,6 +53,12 @@ public class UsuariosController : Controller
         {
             validacaoResult.AddToModelState(ModelState, string.Empty);
             return View(dados);
+        }
+
+        if (!await _roleManeger.RoleExistsAsync(dados.Role))
+        {
+            var role = new IdentityRole(dados.Role);
+            await _roleManeger.CreateAsync(role);
         }
 
         var user = new IdentityUser
@@ -64,10 +73,11 @@ public class UsuariosController : Controller
             identityResult.Errors.ToList().ForEach(e => ModelState.AddModelError(string.Empty, e.Description));
             return View(dados);
         }
+        await _userManager.AddToRoleAsync(user, dados.Role);
         return RedirectToAction(nameof(Index));
     }
 
-    public IActionResult Editar(string id)
+    public async Task<IActionResult> Editar(string id)
     {
         var usuario = _userManager.Users.FirstOrDefault(u => u.Id == id);
         if (usuario is null) return NotFound();
@@ -76,13 +86,15 @@ public class UsuariosController : Controller
         {
             Username = usuario.UserName,
             Email = usuario.Email,
-            Telefone = usuario.PhoneNumber
+            Telefone = usuario.PhoneNumber,
+            Role = (await _userManager.GetRolesAsync(usuario)).FirstOrDefault() ?? string.Empty
         };
 
         return View(dados);
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Editar(string id, EditarUsuarioViewModel dados)
     {
         var validacaoResult = _editarUsuarioValidator.Validate(dados);
@@ -94,6 +106,13 @@ public class UsuariosController : Controller
 
         var usuario = _userManager.Users.FirstOrDefault(u => u.Id == id);
         if (usuario is null) return NotFound();
+
+        if (!await _roleManeger.RoleExistsAsync(dados.Role))
+        {
+            var role = new IdentityRole(dados.Role);
+            await _roleManeger.CreateAsync(role);
+        }
+
         usuario.UserName = dados.Username;
         usuario.Email = dados.Email;
         usuario.PhoneNumber = dados.Telefone;
@@ -104,7 +123,8 @@ public class UsuariosController : Controller
             identityResult.Errors.ToList().ForEach(e => ModelState.AddModelError(string.Empty, e.Description));
             return View(dados);
         }
-
+        await _userManager.RemoveFromRolesAsync(usuario, await _userManager.GetRolesAsync(usuario));
+        await _userManager.AddToRoleAsync(usuario, dados.Role);
         return RedirectToAction(nameof(Index));
     }
 
