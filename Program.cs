@@ -34,7 +34,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Auth/Login"; //rota padrão de autenticação
     options.AccessDeniedPath = "/Auth/Login"; //rota para quando não tem as credenciais necessarias
     options.ExpireTimeSpan = TimeSpan.FromDays(7); //seta 7 dias para expirar o cookie de autenticação
-    options.SlidingExpiration = true; //revalida o cookie de autenticação caso o cookie esteja com pelo meno a metade do tempo para expirar
+    options.SlidingExpiration = true; //revalida o cookie de autenticação caso o cookie esteja com pelo meno a metade do tempo para expirar (padrão é true)
 });
 
 builder.Services.AddScoped<IValidator<AdicionarMedicoViewModel>, AdicionarMedicoValidator>();

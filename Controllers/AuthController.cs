@@ -1,4 +1,6 @@
+using System.Threading.Tasks;
 using ASP.NET.Core.Identity.ViewModels.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,11 +10,13 @@ public class AuthController : Controller
 {
     private readonly ILogger<AuthController> _logger;
     private readonly SignInManager<IdentityUser> _signManager;
+    private readonly UserManager<IdentityUser> _userManager;
 
-    public AuthController(ILogger<AuthController> logger, SignInManager<IdentityUser> signManager)
+    public AuthController(ILogger<AuthController> logger, SignInManager<IdentityUser> signManager, UserManager<IdentityUser> userManager)
     {
         _logger = logger;
         _signManager = signManager;
+        _userManager = userManager;
     }
 
     public IActionResult Login()
@@ -44,5 +48,29 @@ public class AuthController : Controller
     {
         await _signManager.SignOutAsync();
         return RedirectToAction(nameof(Login));
+    }
+
+    [Authorize]
+    public IActionResult AlterarSenha()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AlterarSenha(AlterarSenhaViewModel dados)
+    {
+        if (!ModelState.IsValid) return View(dados);
+
+        var user = await _userManager.GetUserAsync(User);
+        var result = await _userManager.ChangePasswordAsync(user, dados.SenhaAtual, dados.NovaSenha);
+        if (!result.Succeeded)
+        {
+            result.Errors.ToList().ForEach(x => ModelState.AddModelError(string.Empty, x.Description));
+            return View(dados);
+        }
+        await _signManager.RefreshSignInAsync(user);
+        return RedirectToAction(nameof(AlterarSenha));
     }
 }
